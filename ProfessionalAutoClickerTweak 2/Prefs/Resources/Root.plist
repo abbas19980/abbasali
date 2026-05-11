@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Professional Auto Clicker</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>com.example.professionalautoclicker</string>
+			<key>key</key>
+			<string>enabled</string>
+			<key>label</key>
+			<string>Enable Tweak</string>
+			<key>PostNotification</key>
+			<string>com.example.professionalautoclicker.prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSEditTextCell</string>
+			<key>defaults</key>
+			<string>com.example.professionalautoclicker</string>
+			<key>key</key>
+			<string>targetBundleIdentifier</string>
+			<key>label</key>
+			<string>Target Bundle ID</string>
+			<key>placeholder</key>
+			<string>Leave empty for all apps</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Execution Settings</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSEditTextCell</string>
+			<key>defaults</key>
+			<string>com.example.professionalautoclicker</string>
+			<key>key</key>
+			<string>intervalSeconds</string>
+			<key>label</key>
+			<string>Interval (seconds)</string>
+			<key>keyboard</key>
+			<string>decimal-pad</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSEditTextCell</string>
+			<key>defaults</key>
+			<string>com.example.professionalautoclicker</string>
+			<key>key</key>
+			<string>repeatCount</string>
+			<key>label</key>
+			<string>Repeat Count</string>
+			<key>keyboard</key>
+			<string>number-pad</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Safety</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>com.example.professionalautoclicker</string>
+			<key>key</key>
+			<string>previewMode</string>
+			<key>label</key>
+			<string>Preview Mode (Safe)</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>Professional Auto Clicker</string>
+</dict>
+</plist>

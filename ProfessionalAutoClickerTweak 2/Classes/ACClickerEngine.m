@@ -1,61 +1,89 @@
 #import "ACClickerEngine.h"
-#import "ACPointModel.h"
+#import "ACPreferences.h"
 #import "ACLogger.h"
 
-@interface ACClickerEngine ()
-@property (nonatomic, strong) NSArray<ACPointModel *> *points;
-@property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, assign) NSInteger cursor;
-@property (nonatomic, assign) NSInteger completedCycles;
-@property (nonatomic, assign) NSInteger repeatCount;
-@property (nonatomic, assign, readwrite, getter=isRunning) BOOL running;
-@end
-
-@implementation ACClickerEngine
-- (void)startWithPoints:(NSArray<ACPointModel *> *)points interval:(NSTimeInterval)interval repeatCount:(NSInteger)repeatCount {
-    [self stop];
-    if (points.count == 0) return;
-    self.points = [[NSArray alloc] initWithArray:points copyItems:YES];
-    self.cursor = 0;
-    self.completedCycles = 0;
-    self.repeatCount = repeatCount;
-    self.running = YES;
-
-    NSTimeInterval safeInterval = MAX(0.05, interval);
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:safeInterval target:self selector:@selector(tick) userInfo:nil repeats:YES];
-    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
-    [self tick];
-    ACLog(@"Preview engine started with %lu points", (unsigned long)points.count);
+@implementation ACClickerEngine {
+    NSTimer *_executionTimer;
+    NSInteger _currentIndex;
+    NSInteger _repeatCounter;
 }
 
-- (void)tick {
-    if (!self.running || self.points.count == 0) return;
-    ACPointModel *point = self.points[self.cursor];
-
-    // Safe mode: this is only visual preview. It intentionally does not synthesize system touch events.
-    [self.delegate clickerEngineDidPreviewPoint:point];
-
-    self.cursor++;
-    if (self.cursor >= self.points.count) {
-        self.cursor = 0;
-        self.completedCycles++;
-        if (self.repeatCount > 0 && self.completedCycles >= self.repeatCount) {
-            [self stop];
-        }
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _points = [NSMutableArray array];
+        _isRunning = NO;
+        _currentIndex = 0;
+        _repeatCounter = 0;
     }
+    return self;
+}
+
+- (void)addPoint:(ACPointModel *)point {
+    [_points addObject:point];
+    ACLog(@"Point added at (%.0f, %.0f)", point.location.x, point.location.y);
+}
+
+- (void)removePoint:(ACPointModel *)point {
+    [_points removeObject:point];
+    ACLog(@"Point removed");
+}
+
+- (void)clearAllPoints {
+    [_points removeAllObjects];
+    ACLog(@"All points cleared");
+}
+
+- (void)start {
+    if (_points.count == 0) {
+        ACLog(@"No points to execute");
+        return;
+    }
+    
+    _isRunning = YES;
+    _currentIndex = 0;
+    _repeatCounter = 0;
+    
+    ACLog(@"Engine started with %ld points", (long)_points.count);
+    [self executeNextPoint];
 }
 
 - (void)stop {
-    if (self.timer) {
-        [self.timer invalidate];
-        self.timer = nil;
-    }
-    BOOL wasRunning = self.running;
-    self.running = NO;
-    self.points = @[];
-    self.cursor = 0;
-    if (wasRunning) [self.delegate clickerEngineDidStop];
+    _isRunning = NO;
+    [_executionTimer invalidate];
+    _executionTimer = nil;
+    ACLog(@"Engine stopped");
 }
 
-- (void)dealloc { [self stop]; }
+- (void)executeNextPoint {
+    if (!_isRunning || _points.count == 0) return;
+    
+    if (_currentIndex >= _points.count) {
+        _currentIndex = 0;
+        _repeatCounter++;
+        
+        if (_repeatCounter >= ACPreferences.shared.repeatCount) {
+            [self stop];
+            return;
+        }
+    }
+    
+    ACPointModel *point = _points[_currentIndex];
+    ACLog(@"Executing point %ld at (%.0f, %.0f)", (long)_currentIndex, point.location.x, point.location.y);
+    
+    _currentIndex++;
+    
+    __weak typeof(self) weakSelf = self;
+    _executionTimer = [NSTimer scheduledTimerWithTimeInterval:ACPreferences.shared.intervalSeconds repeats:NO block:^(NSTimer * _Nonnull timer) {
+        [weakSelf executeNextPoint];
+    }];
+}
+
+- (void)previewPoints {
+    ACLog(@"Preview mode: %ld points will be executed", (long)_points.count);
+    for (ACPointModel *point in _points) {
+        ACLog(@"  -> Point at (%.0f, %.0f)", point.location.x, point.location.y);
+    }
+}
+
 @end

@@ -1,37 +1,56 @@
 #import "ACPointModel.h"
 
 @implementation ACPointModel
-+ (BOOL)supportsSecureCoding { return YES; }
-+ (instancetype)modelWithIndex:(NSInteger)index location:(CGPoint)location {
-    ACPointModel *model = [ACPointModel new];
-    model.index = index;
-    model.location = location;
-    model.customInterval = 0.50;
-    model.customIntervalEnabled = NO;
-    return model;
-}
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeInteger:self.index forKey:@"index"];
-    [coder encodeCGPoint:self.location forKey:@"location"];
-    [coder encodeDouble:self.customInterval forKey:@"customInterval"];
-    [coder encodeBool:self.customIntervalEnabled forKey:@"customIntervalEnabled"];
-}
-- (instancetype)initWithCoder:(NSCoder *)coder {
+
+- (instancetype)initWithLocation:(CGPoint)location {
     self = [super init];
     if (self) {
-        _index = [coder decodeIntegerForKey:@"index"];
-        _location = [coder decodeCGPointForKey:@"location"];
-        _customInterval = [coder decodeDoubleForKey:@"customInterval"];
-        _customIntervalEnabled = [coder decodeBoolForKey:@"customIntervalEnabled"];
+        _location = location;
+        _identifier = [[NSUUID UUID] UUIDString];
+        _timestamp = [NSDate date].timeIntervalSince1970;
     }
     return self;
 }
-- (id)copyWithZone:(NSZone *)zone {
-    ACPointModel *copy = [ACPointModel new];
-    copy.index = self.index;
-    copy.location = self.location;
-    copy.customInterval = self.customInterval;
-    copy.customIntervalEnabled = self.customIntervalEnabled;
-    return copy;
+
+- (NSDictionary *)toDictionary {
+    return @{
+        @"x": @(_location.x),
+        @"y": @(_location.y),
+        @"identifier": _identifier,
+        @"timestamp": @(_timestamp)
+    };
 }
+
++ (instancetype)fromDictionary:(NSDictionary *)dict {
+    ACPointModel *model = [[ACPointModel alloc] initWithLocation:CGPointMake(
+        [dict[@"x"] floatValue],
+        [dict[@"y"] floatValue]
+    )];
+    model.identifier = dict[@"identifier"];
+    model.timestamp = [dict[@"timestamp"] doubleValue];
+    return model;
+}
+
+#pragma mark - NSCoding
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeFloat:_location.x forKey:@"x"];
+    [coder encodeFloat:_location.y forKey:@"y"];
+    [coder encodeObject:_identifier forKey:@"identifier"];
+    [coder encodeDouble:_timestamp forKey:@"timestamp"];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        _location = CGPointMake(
+            [coder decodeFloatForKey:@"x"],
+            [coder decodeFloatForKey:@"y"]
+        );
+        _identifier = [coder decodeObjectForKey:@"identifier"];
+        _timestamp = [coder decodeDoubleForKey:@"timestamp"];
+    }
+    return self;
+}
+
 @end

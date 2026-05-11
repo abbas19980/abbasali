@@ -1,14 +1,16 @@
-#import <Foundation/Foundation.h>
-#import <CoreGraphics/CoreGraphics.h>
+#ifndef ACPointModel_h
+#define ACPointModel_h
 
-NS_ASSUME_NONNULL_BEGIN
+#import <UIKit/UIKit.h>
 
-@interface ACPointModel : NSObject <NSCopying, NSSecureCoding>
-@property (nonatomic, assign) NSInteger index;
+@interface ACPointModel : NSObject <NSCoding>
+
 @property (nonatomic, assign) CGPoint location;
-@property (nonatomic, assign) NSTimeInterval customInterval;
-@property (nonatomic, assign) BOOL customIntervalEnabled;
-+ (instancetype)modelWithIndex:(NSInteger)index location:(CGPoint)location;
-@end
+@property (nonatomic, strong) NSString *identifier;
+@property (nonatomic, assign) NSTimeInterval timestamp;
 
-NS_ASSUME_NONNULL_END
+- (instancetype)initWithLocation:(CGPoint)location;
+- (NSDictionary *)toDictionary;
++ (instancetype)fromDictionary:(NSDictionary *)dict;
+
+#endif /* ACPointModel_h */

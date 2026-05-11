@@ -1,60 +1,49 @@
 #import "ACPreferences.h"
+#import "ACLogger.h"
 
-NSString * const ACPreferencesChangedNotification = @"ACPreferencesChangedNotification";
-static NSString * const kPrefsPath = @"/var/mobile/Library/Preferences/com.example.professionalautoclicker.plist";
+static NSString *const kPrefsFile = @"/var/mobile/Library/Preferences/com.example.professionalautoclicker.plist";
 
 @implementation ACPreferences
-+ (instancetype)shared {
-    static ACPreferences *prefs;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ prefs = [ACPreferences new]; [prefs reload]; });
-    return prefs;
-}
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _enabled = YES;
-        _soundEnabled = NO;
-        _previewModeOnly = YES;
-        _interval = 0.50;
-        _pressDuration = 0.08;
-        _repeatCount = 0;
-        _targetBundleIdentifier = @"";
-    }
-    return self;
++ (instancetype)shared {
+    static ACPreferences *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[ACPreferences alloc] init];
+        [instance reload];
+    });
+    return instance;
 }
 
 - (void)reload {
-    NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:kPrefsPath];
-    if (![dict isKindOfClass:NSDictionary.class]) return;
-    _enabled = dict[@"enabled"] ? [dict[@"enabled"] boolValue] : YES;
-    _soundEnabled = dict[@"soundEnabled"] ? [dict[@"soundEnabled"] boolValue] : NO;
-    _previewModeOnly = dict[@"previewModeOnly"] ? [dict[@"previewModeOnly"] boolValue] : YES;
-    _interval = dict[@"interval"] ? MAX(0.05, [dict[@"interval"] doubleValue]) : 0.50;
-    _pressDuration = dict[@"pressDuration"] ? MAX(0.03, [dict[@"pressDuration"] doubleValue]) : 0.08;
-    _repeatCount = dict[@"repeatCount"] ? MAX(0, [dict[@"repeatCount"] integerValue]) : 0;
-    _targetBundleIdentifier = [dict[@"targetBundleIdentifier"] isKindOfClass:NSString.class] ? dict[@"targetBundleIdentifier"] : @"";
+    NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:kPrefsFile];
+    
+    _enabled = [prefs[@"enabled"] boolValue] ?: YES;
+    _previewMode = [prefs[@"previewMode"] boolValue] ?: YES;
+    _targetBundleIdentifier = prefs[@"targetBundleIdentifier"] ?: @"";
+    _intervalSeconds = [prefs[@"intervalSeconds"] floatValue] ?: 1.0f;
+    _repeatCount = [prefs[@"repeatCount"] integerValue] ?: 10;
+    
+    ACLog(@"Preferences reloaded - enabled:%d, preview:%d", _enabled, _previewMode);
 }
 
 - (void)save {
-    NSDictionary *dict = @{
+    NSDictionary *prefs = @{
         @"enabled": @(_enabled),
-        @"soundEnabled": @(_soundEnabled),
-        @"previewModeOnly": @(_previewModeOnly),
-        @"interval": @(_interval),
-        @"pressDuration": @(_pressDuration),
-        @"repeatCount": @(_repeatCount),
-        @"targetBundleIdentifier": _targetBundleIdentifier ?: @""
+        @"previewMode": @(_previewMode),
+        @"targetBundleIdentifier": _targetBundleIdentifier ?: @"",
+        @"intervalSeconds": @(_intervalSeconds),
+        @"repeatCount": @(_repeatCount)
     };
-    [dict writeToFile:kPrefsPath atomically:YES];
-    [[NSNotificationCenter defaultCenter] postNotificationName:ACPreferencesChangedNotification object:nil];
+    
+    [prefs writeToFile:kPrefsFile atomically:YES];
+    ACLog(@"Preferences saved");
 }
 
-- (BOOL)shouldLoadForCurrentBundle {
-    if (!self.enabled) return NO;
-    NSString *bundle = NSBundle.mainBundle.bundleIdentifier ?: @"";
-    if (self.targetBundleIdentifier.length == 0) return YES;
-    return [bundle isEqualToString:self.targetBundleIdentifier];
+- (BOOL)shouldActivateForBundle:(NSString *)bundleID {
+    if (!_enabled) return NO;
+    if ([_targetBundleIdentifier isEqualToString:@""]) return YES;
+    return [bundleID isEqualToString:_targetBundleIdentifier];
 }
+
 @end

@@ -1,11 +1,11 @@
+#ifndef ACLogger_h
+#define ACLogger_h
+
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+// Macro for safe logging
+#define ACLog(fmt, ...) ACLoggerLog(@"[AC] " fmt, ##__VA_ARGS__)
 
-#define ACLog(fmt, ...) [ACLogger logWithFunction:__PRETTY_FUNCTION__ line:__LINE__ format:(fmt), ##__VA_ARGS__]
+void ACLoggerLog(NSString *format, ...) NS_FORMAT_FUNCTION(1, 2);
 
-@interface ACLogger : NSObject
-+ (void)logWithFunction:(const char *)function line:(int)line format:(NSString *)format, ... NS_FORMAT_FUNCTION(3,4);
-@end
-
-NS_ASSUME_NONNULL_END
+#endif /* ACLogger_h */

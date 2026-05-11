@@ -1,23 +1,20 @@
+#ifndef ACPreferences_h
+#define ACPreferences_h
+
 #import <Foundation/Foundation.h>
-#import <CoreGraphics/CoreGraphics.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-extern NSString * const ACPreferencesChangedNotification;
 
 @interface ACPreferences : NSObject
-@property (nonatomic, assign) BOOL enabled;
-@property (nonatomic, assign) BOOL soundEnabled;
-@property (nonatomic, assign) BOOL previewModeOnly;
-@property (nonatomic, assign) NSTimeInterval interval;
-@property (nonatomic, assign) NSTimeInterval pressDuration;
-@property (nonatomic, assign) NSInteger repeatCount;
-@property (nonatomic, copy) NSString *targetBundleIdentifier;
 
 + (instancetype)shared;
+
+@property (nonatomic, assign) BOOL enabled;
+@property (nonatomic, assign) BOOL previewMode;
+@property (nonatomic, strong) NSString *targetBundleIdentifier;
+@property (nonatomic, assign) CGFloat intervalSeconds;
+@property (nonatomic, assign) NSInteger repeatCount;
+
 - (void)reload;
 - (void)save;
-- (BOOL)shouldLoadForCurrentBundle;
-@end
+- (BOOL)shouldActivateForBundle:(NSString *)bundleID;
 
-NS_ASSUME_NONNULL_END
+#endif /* ACPreferences_h */

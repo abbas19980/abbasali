@@ -1,8 +1,13 @@
+#ifndef ACFloatingButton_h
+#define ACFloatingButton_h
+
 #import <UIKit/UIKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@interface ACFloatingButton : UIView
 
-@interface ACFloatingButton : UIButton
-@end
+@property (nonatomic, copy) void (^onTap)(void);
 
-NS_ASSUME_NONNULL_END
+- (void)show;
+- (void)hide;
+
+#endif /* ACFloatingButton_h */

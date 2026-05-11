@@ -1,11 +1,16 @@
-#import <UIKit/UIKit.h>
+#ifndef ACOverlayController_h
+#define ACOverlayController_h
 
-NS_ASSUME_NONNULL_BEGIN
+#import <UIKit/UIKit.h>
+#import "ACFloatingButton.h"
+#import "ACMenuView.h"
+#import "ACClickerEngine.h"
 
 @interface ACOverlayController : NSObject
-+ (instancetype)shared;
-- (void)installIfNeeded;
-- (void)remove;
-@end
 
-NS_ASSUME_NONNULL_END
++ (instancetype)shared;
+
+- (void)installIfNeeded;
+- (void)uninstall;
+
+#endif /* ACOverlayController_h */
