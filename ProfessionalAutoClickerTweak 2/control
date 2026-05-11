@@ -1,0 +1,9 @@
+Package: com.example.professionalautoclicker
+Name: ProfessionalAutoClicker
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Professional overlay/menu/point manager tweak scaffold with safe preview engine.
+Maintainer: Abbas
+Author: Abbas
+Section: Tweaks
+Depends: mobilesubstrate, firmware (>= 15.0)

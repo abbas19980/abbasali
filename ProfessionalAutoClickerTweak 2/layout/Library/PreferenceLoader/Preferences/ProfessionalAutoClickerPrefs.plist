@@ -1,0 +1,10 @@
+{
+    entry = {
+        bundle = ProfessionalAutoClickerPrefs;
+        cell = PSLinkCell;
+        detail = ACRootListController;
+        icon = ProfessionalAutoClickerPrefs.png;
+        isController = 1;
+        label = ProfessionalAutoClicker;
+    };
+}
